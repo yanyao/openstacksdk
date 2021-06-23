@@ -18,6 +18,9 @@ from openstack.shared_file_system.v2 import (
     share_access_rule as _share_access_rule
 )
 from openstack.shared_file_system.v2 import (
+    share_group as _share_group
+)
+from openstack.shared_file_system.v2 import (
     share_snapshot as _share_snapshot
 )
 from openstack.shared_file_system.v2 import (
@@ -141,6 +144,105 @@ class Proxy(proxy.Proxy):
         """
         res = self._get(_share.Share, share_id)
         res.revert_to_snapshot(self, snapshot_id)
+
+    def share_groups(self, **query):
+        """Lists all share groups.
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the share groups being returned.  Available parameters include:
+
+            * status: Filters by a share group status.
+            * name: The user defined name of the resource to filter resources
+                by.
+            * description: The user defined description text that can be used
+                to filter resources.
+            * project_id: The project ID of the user or service.
+            * share_server_id: The UUID of the share server.
+            * snapshot_id: The UUID of the share’s base snapshot to filter
+                the request based on.
+            * host: The host name for the back end.
+            * share_network_id: The UUID of the share network to filter
+                resources by.
+            * share_group_type_id: The share group type ID to filter
+                share groups.
+            * share_group_snapshot_id: The source share group snapshot ID to
+                list the share group.
+            * share_types: A list of one or more share type IDs. Allows
+                filtering share groups.
+            * limit: The maximum number of share groups members to return.
+            * offset: The offset to define start point of share or share
+                group listing.
+            * sort_key: The key to sort a list of shares.
+            * sort_dir: The direction to sort a list of shares
+            * name~: The name pattern that can be used to filter shares,
+                share snapshots, share networks or share groups.
+            * description~: The description pattern that can be used to
+                filter shares, share snapshots, share networks or share groups.
+
+        :returns: A generator of manila share group resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_group.ShareGroup`
+        """
+        return self._list(
+            _share_group.ShareGroup, **query)
+
+    def get_share_group(self, share_group_id):
+        """Lists details for a share group.
+
+        :param share: The ID of the share group to get
+        :returns: Details of the identified share group
+        :rtype: :class:`~openstack.shared_file_system.v2.
+                                    share_group.ShareGroup`
+        """
+        return self._get(_share_group.ShareGroup, share_group_id)
+
+    def find_share_group(self, name_or_id, ignore_missing=True):
+        """Finds a single share group
+
+        :param name_or_id: The name or ID of a share group.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.shared_file_system.v2.
+                                        share_group.ShareGroup`
+                                        or None
+        """
+        return self._find(_share_group.ShareGroup, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def create_share_group(self, **attrs):
+        """Creates a share group from attributes
+
+        :returns: Details of the new share group
+        :rtype: :class:`~openstack.shared_file_system.v2.
+                                    share_group.ShareGroup`
+        """
+        return self._create(_share_group.ShareGroup, **attrs)
+
+    def update_share_group(self, share_group_id, **kwargs):
+        """Updates details of a single share group
+
+        :param share: The ID of the share group
+        :returns: Updated details of the identified share group
+        :rtype: :class:`~openstack.shared_file_system.v2.
+                                    share_group.ShareGroup`
+        """
+        return self._update(
+            _share_group.ShareGroup, share_group_id, **kwargs)
+
+    def delete_share_group(self, share_group_id, ignore_missing=True):
+        """Deletes a single share group
+
+        :param share: The ID of the share group
+        :returns: Result of the "delete" on share group
+        :rtype: :class:`~openstack.shared_file_system.v2.
+                                    share_group.ShareGroup`
+        """
+        return self._delete(
+            _share_group.ShareGroup, share_group_id,
+            ignore_missing=ignore_missing)
 
     def wait_for_status(self, res, status='active', failures=None,
                         interval=2, wait=120):
