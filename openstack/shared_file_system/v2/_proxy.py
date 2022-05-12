@@ -21,6 +21,8 @@ from openstack.shared_file_system.v2 import (
     share_group as _share_group
 )
 from openstack.shared_file_system.v2 import (
+    share_group_snapshot as _share_group_snapshot)
+from openstack.shared_file_system.v2 import (
     share_snapshot as _share_snapshot
 )
 from openstack.shared_file_system.v2 import (
@@ -445,3 +447,106 @@ class Proxy(proxy.Proxy):
         """
         return self._get(
             _share_access_rule.ShareAccessRule, access_id)
+
+    def share_group_snapshots(self, details=True, **query):
+        """Lists all share group snapshots.
+
+        :param kwargs query: Optional query parameters to be sent
+            to limit the share group snapshots being returned.
+            Available parameters include:
+
+            * project_id: The ID of the project that owns the resource.
+            * name: The user defined name of the resource to filter resources.
+            * description: The user defined description text that can be used
+              to filter resources.
+            * status: Filters by a share status
+            * share_group_id: The UUID of a share group to filter resource.
+            * limit: The maximum number of share group snapshot members
+              to return.
+            * offset: The offset to define start point of share or
+              share group listing.
+            * sort_key: The key to sort a list of shares.
+            * sort_dir: The direction to sort a list of shares. A valid
+              value is asc, or desc.
+
+        :returns: Details of share group snapshots resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_group_snapshot.ShareGroupSnapshot`
+        """
+        base_path = '/share-group-snapshots/detail' if details else None
+        return self._list(
+            _share_group_snapshot.ShareGroupSnapshot,
+            base_path=base_path, **query)
+
+    def share_group_snapshot_members(self, group_snapshot_id):
+        """Lists all share group snapshots members.
+
+        :param group_snapshot_id: The ID of the group snapshot to get
+        :returns: List of the share group snapshot members, which are
+            share snapshots.
+        :rtype: :dict: Attributes of the share snapshots.
+        """
+        res = self._get(
+            _share_group_snapshot.ShareGroupSnapshot, group_snapshot_id)
+        response = res.members(self)
+        return response
+
+    def get_share_group_snapshot(self, group_snapshot_id):
+        """Show share group snapshot details
+
+        :param group_snapshot_id: The ID of the group snapshot to get
+        :returns: Details of the group snapshot
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_group_snapshot.ShareGroupSnapshot`
+        """
+        return self._get(
+            _share_group_snapshot.ShareGroupSnapshot, group_snapshot_id)
+
+    def create_share_group_snapshot(self, share_group_id, **attrs):
+        """Creates a point-in-time snapshot copy of a share group.
+
+        :returns: Details of the new snapshot
+        :param dict attrs: Attributes which will be used to create
+            a :class:`~openstack.shared_file_system.v2.
+            share_group_snapshots.ShareGroupSnapshots`,
+            'share_group_id' are required to create a share.
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_group_snapshot.ShareGroupSnapshot`
+        """
+        return self._create(_share_group_snapshot.ShareGroupSnapshot,
+                            share_group_id=share_group_id, **attrs)
+
+    def reset_share_group_snapshot_status(self, group_snapshot_id, status):
+        """Reset share group snapshot state.
+
+        :param group_snapshot_id: The ID of the share group snapshot to reset
+        :param status: The state of the server to be set, A valid value is
+            "creating", "error", "available", "deleting", "error_deleting".
+        :rtype: ``None``
+        """
+        res = self._get(
+            _share_group_snapshot.ShareGroupSnapshot, group_snapshot_id)
+        res.reset_status(self, status)
+
+    def update_share_group_snapshot(self, group_snapshot_id, **attrs):
+        """Updates a share group snapshot.
+
+        :param group_snapshot_id: The ID of the share group snapshot to update
+        :param dict attrs: The attributes to update on the share group snapshot
+        :returns: the updated share group snapshot
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_group_snapshot.ShareGroupSnapshot`
+        """
+        return self._update(_share_group_snapshot.ShareGroupSnapshot,
+                            group_snapshot_id, **attrs)
+
+    def delete_share_group_snapshot(
+            self, group_snapshot_id, ignore_missing=True):
+        """Deletes a share group snapshot.
+
+        :param group_snapshot_id: The ID of the share group snapshot to delete
+        :rtype: ``None``
+        """
+        self._delete(_share_group_snapshot.ShareGroupSnapshot,
+                     group_snapshot_id,
+                     ignore_missing=ignore_missing)
