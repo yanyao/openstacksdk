@@ -374,9 +374,9 @@ class BlockStorageCloudMixin:
                 % (volume['id'], server['id'], dev)
             )
 
-        if volume['status'] != 'available':
+        if volume['status'] != 'available' and volume['status'] != 'in-use':
             raise exceptions.SDKException(
-                "Volume %s is not available. Status is '%s'"
+                "Volume %s status is '%s'"
                 % (volume['id'], volume['status'])
             )
 
